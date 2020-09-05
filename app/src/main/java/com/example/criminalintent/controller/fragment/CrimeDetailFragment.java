@@ -24,6 +24,7 @@ import com.example.criminalintent.model.Crime;
 import com.example.criminalintent.repository.CrimeRepository;
 import com.example.criminalintent.repository.IRepository;
 
+import java.util.Date;
 import java.util.UUID;
 
 public class CrimeDetailFragment extends Fragment {
@@ -31,6 +32,7 @@ public class CrimeDetailFragment extends Fragment {
     public static final String TAG = "CDF";
     public static final String ARGS_CRIME_ID = "crimeId";
     public static final String FRAGMENT_TAG_DATE_PICKER = "DatePicker";
+    public static final int REQUEST_CODE_DATE_PICKER = 0;
 
     private EditText mEditTextTitle;
     private Button mButtonDate;
@@ -51,13 +53,6 @@ public class CrimeDetailFragment extends Fragment {
 
     public CrimeDetailFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-
-        Log.d(TAG, "onAttach");
     }
 
     @Override
@@ -98,53 +93,11 @@ public class CrimeDetailFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        Log.d(TAG, "onStart");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        Log.d(TAG, "onResume");
-    }
-
-    @Override
     public void onPause() {
         super.onPause();
         updateCrime();
 
         Log.d(TAG, "onPause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        Log.d(TAG, "onStop");
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
-        Log.d(TAG, "onDestroyView");
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        Log.d(TAG, "onDestroy");
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        Log.d(TAG, "onDetach");
     }
 
     private void findViews(View view) {
@@ -189,7 +142,14 @@ public class CrimeDetailFragment extends Fragment {
         mButtonDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePickerFragment datePickerFragment = DatePickerFragment.newInstance();
+                DatePickerFragment datePickerFragment =
+                        DatePickerFragment.newInstance(mCrime.getDate());
+
+                //create parent-child relations between CDF and DPF
+                datePickerFragment.setTargetFragment(
+                        CrimeDetailFragment.this,
+                        REQUEST_CODE_DATE_PICKER);
+
                 datePickerFragment.show(
                         getActivity().getSupportFragmentManager(),
                         FRAGMENT_TAG_DATE_PICKER);
@@ -199,5 +159,12 @@ public class CrimeDetailFragment extends Fragment {
 
     private void updateCrime() {
         mRepository.updateCrime(mCrime);
+    }
+
+    void updateCrimeDate(Date userSelectedDate) {
+        mCrime.setDate(userSelectedDate);
+        updateCrime();
+
+        mButtonDate.setText(mCrime.getDate().toString());
     }
 }

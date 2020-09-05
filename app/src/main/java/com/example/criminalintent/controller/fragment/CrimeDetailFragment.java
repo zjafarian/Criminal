@@ -1,7 +1,9 @@
 package com.example.criminalintent.controller.fragment;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -100,6 +102,19 @@ public class CrimeDetailFragment extends Fragment {
         Log.d(TAG, "onPause");
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode != Activity.RESULT_OK || data == null)
+            return;
+
+        if (requestCode == REQUEST_CODE_DATE_PICKER) {
+            Date userSelectedDate =
+                    (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_USER_SELECTED_DATE);
+
+            updateCrimeDate(userSelectedDate);
+        }
+    }
+
     private void findViews(View view) {
         mEditTextTitle = view.findViewById(R.id.crime_title);
         mButtonDate = view.findViewById(R.id.crime_date);
@@ -161,7 +176,7 @@ public class CrimeDetailFragment extends Fragment {
         mRepository.updateCrime(mCrime);
     }
 
-    void updateCrimeDate(Date userSelectedDate) {
+    private void updateCrimeDate(Date userSelectedDate) {
         mCrime.setDate(userSelectedDate);
         updateCrime();
 

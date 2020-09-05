@@ -1,5 +1,6 @@
 package com.example.criminalintent.controller.fragment;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -28,6 +29,7 @@ import java.util.GregorianCalendar;
 public class DatePickerFragment extends DialogFragment {
 
     public static final String ARGS_CRIME_DATE = "crimeDate";
+    public static final String EXTRA_USER_SELECTED_DATE = "com.example.criminalintent.userSelectedDate";
     private Date mCrimeDate;
 
     private DatePicker mDatePicker;
@@ -70,16 +72,15 @@ public class DatePickerFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Date userSelectedDate = extractDateFromDatePicker();
+                        sendResult(userSelectedDate);
 
-                        //TODO: this is anti pattern: this fragment is dependant to another fragment
-                        //onActivityResult
-                        Fragment fragment = getTargetFragment();
+                        /*Fragment fragment = getTargetFragment();
                         if (fragment != null && fragment instanceof CrimeDetailFragment) {
                             CrimeDetailFragment crimeDetailFragment =
                                     (CrimeDetailFragment) fragment;
 
                             crimeDetailFragment.updateCrimeDate(userSelectedDate);
-                        }
+                        }*/
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null);
@@ -113,5 +114,16 @@ public class DatePickerFragment extends DialogFragment {
 
         GregorianCalendar calendar = new GregorianCalendar(year, month, dayOfMonth);
         return calendar.getTime();
+    }
+
+    private void sendResult(Date userSelectedDate) {
+        Fragment fragment = getTargetFragment();
+
+        int requestCode = getTargetRequestCode();
+        int resultCode = Activity.RESULT_OK;
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_USER_SELECTED_DATE, userSelectedDate);
+
+        fragment.onActivityResult(requestCode, resultCode, intent);
     }
 }

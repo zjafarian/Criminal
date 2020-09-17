@@ -29,7 +29,9 @@ import java.util.GregorianCalendar;
 public class DatePickerFragment extends DialogFragment {
 
     public static final String ARGS_CRIME_DATE = "crimeDate";
-    public static final String EXTRA_USER_SELECTED_DATE = "com.example.criminalintent.userSelectedDate";
+    public static final String EXTRA_USER_SELECTED_DATE =
+            "com.example.criminalintent.userSelectedDate";
+
     private Date mCrimeDate;
 
     private DatePicker mDatePicker;
@@ -73,15 +75,7 @@ public class DatePickerFragment extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         Date userSelectedDate = extractDateFromDatePicker();
                         sendResult(userSelectedDate);
-
-                        /*Fragment fragment = getTargetFragment();
-                        if (fragment != null && fragment instanceof CrimeDetailFragment) {
-                            CrimeDetailFragment crimeDetailFragment =
-                                    (CrimeDetailFragment) fragment;
-
-                            crimeDetailFragment.updateCrimeDate(userSelectedDate);
-                        }*/
-                    }
+                        }
                 })
                 .setNegativeButton(android.R.string.cancel, null);
 

@@ -29,12 +29,13 @@ import java.util.List;
 public class CrimeListFragment extends Fragment {
 
     public static final String TAG = "CLF";
+    public static final String BUNDLE_ARG_IS_SUBTITLE_VISIBLE = "isSubtitleVisible";
 
     private RecyclerView mRecyclerView;
     private CrimeAdapter mCrimeAdapter;
 
     private IRepository mRepository;
-    private boolean isSubtitleVisible = false;
+    private boolean mIsSubtitleVisible = false;
 
     public static CrimeListFragment newInstance() {
 
@@ -53,8 +54,12 @@ public class CrimeListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mRepository = CrimeRepository.getInstance();
         setHasOptionsMenu(true);
+        mRepository = CrimeRepository.getInstance();
+
+        if (savedInstanceState != null)
+            mIsSubtitleVisible =
+                    savedInstanceState.getBoolean(BUNDLE_ARG_IS_SUBTITLE_VISIBLE, false);
     }
 
     @Override
@@ -72,6 +77,9 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.menu_cime_list, menu);
+
+        MenuItem item = menu.findItem(R.id.menu_item_subtitle);
+        setMenuItemSubtitle(item);
     }
 
     @Override
@@ -86,25 +94,22 @@ public class CrimeListFragment extends Fragment {
 
                 return true;
             case R.id.menu_item_subtitle:
-                isSubtitleVisible = !isSubtitleVisible;
-                updateSubtitle();
+                mIsSubtitleVisible = !mIsSubtitleVisible;
 
-                item.setTitle(
-                        isSubtitleVisible ?
-                                R.string.menu_item_hide_subtitle :
-                                R.string.menu_item_show_subtitle);
+                updateSubtitle();
+                setMenuItemSubtitle(item);
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void updateSubtitle() {
-        int numberOfCrimes = CrimeRepository.getInstance().getCrimes().size();
-        String crimesText = isSubtitleVisible ? numberOfCrimes + " crimes" : null;
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
 
-        AppCompatActivity activity = (AppCompatActivity) getActivity();
-        activity.getSupportActionBar().setSubtitle(crimesText);
+        outState.putBoolean(BUNDLE_ARG_IS_SUBTITLE_VISIBLE, mIsSubtitleVisible);
     }
 
     @Override
@@ -133,6 +138,21 @@ public class CrimeListFragment extends Fragment {
         } else {
             mCrimeAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void updateSubtitle() {
+        int numberOfCrimes = CrimeRepository.getInstance().getCrimes().size();
+        String crimesText = mIsSubtitleVisible ? numberOfCrimes + " crimes" : null;
+
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().setSubtitle(crimesText);
+    }
+
+    private void setMenuItemSubtitle(MenuItem item) {
+        item.setTitle(
+                mIsSubtitleVisible ?
+                        R.string.menu_item_hide_subtitle :
+                        R.string.menu_item_show_subtitle);
     }
 
     private class CrimeHolder extends RecyclerView.ViewHolder {

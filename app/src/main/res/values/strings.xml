@@ -11,4 +11,6 @@
     <string name="date_picker_title">Date of crime:</string>
     <string name="menu_add_crime">Add Crime</string>
     <string name="menu_item_clear">Clear</string>
+    <string name="menu_item_show_subtitle">Show Subtitle</string>
+    <string name="menu_item_hide_subtitle">Hide Subtitle</string>
 </resources>

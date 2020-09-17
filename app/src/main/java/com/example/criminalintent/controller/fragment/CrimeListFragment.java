@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,6 +34,7 @@ public class CrimeListFragment extends Fragment {
     private CrimeAdapter mCrimeAdapter;
 
     private IRepository mRepository;
+    private boolean isSubtitleVisible = false;
 
     public static CrimeListFragment newInstance() {
 
@@ -83,12 +85,26 @@ public class CrimeListFragment extends Fragment {
                 startActivity(intent);
 
                 return true;
-            case R.id.menu_item_clear:
-                //remove all items in repository
+            case R.id.menu_item_subtitle:
+                isSubtitleVisible = !isSubtitleVisible;
+                updateSubtitle();
+
+                item.setTitle(
+                        isSubtitleVisible ?
+                                R.string.menu_item_hide_subtitle :
+                                R.string.menu_item_show_subtitle);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void updateSubtitle() {
+        int numberOfCrimes = CrimeRepository.getInstance().getCrimes().size();
+        String crimesText = isSubtitleVisible ? numberOfCrimes + " crimes" : null;
+
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().setSubtitle(crimesText);
     }
 
     @Override
@@ -96,6 +112,7 @@ public class CrimeListFragment extends Fragment {
         super.onResume();
 
         updateUI();
+        updateSubtitle();
     }
 
     private void findViews(View view) {

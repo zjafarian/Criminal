@@ -27,7 +27,7 @@ public class CrimeListActivity extends SingleFragmentActivity {
         return CrimeListFragment.newInstance();
     }
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_cime_list, menu);
@@ -54,5 +54,5 @@ public class CrimeListActivity extends SingleFragmentActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
+    }*/
 }

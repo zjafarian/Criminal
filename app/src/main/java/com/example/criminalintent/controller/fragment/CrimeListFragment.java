@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -49,6 +52,7 @@ public class CrimeListFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         mRepository = CrimeRepository.getInstance();
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -61,6 +65,30 @@ public class CrimeListFragment extends Fragment {
         initViews();
 
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_cime_list, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_add_crime:
+                Crime crime = new Crime();
+                CrimeRepository.getInstance().insertCrime(crime);
+
+                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
+                startActivity(intent);
+
+                return true;
+            case R.id.menu_item_clear:
+                //remove all items in repository
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

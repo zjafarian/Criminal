@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.criminalintent.R;
 import com.example.criminalintent.controller.activity.CrimePagerActivity;
 import com.example.criminalintent.model.Crime;
-import com.example.criminalintent.repository.CrimeRepository;
+import com.example.criminalintent.repository.CrimeDBRepository;
 import com.example.criminalintent.repository.IRepository;
 
 import java.util.List;
@@ -55,7 +55,7 @@ public class CrimeListFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         setHasOptionsMenu(true);
-        mRepository = CrimeRepository.getInstance();
+        mRepository = CrimeDBRepository.getInstance(getActivity());
 
         if (savedInstanceState != null)
             mIsSubtitleVisible =
@@ -87,7 +87,7 @@ public class CrimeListFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.menu_item_add_crime:
                 Crime crime = new Crime();
-                CrimeRepository.getInstance().insertCrime(crime);
+                mRepository.insertCrime(crime);
 
                 Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
                 startActivity(intent);
@@ -98,6 +98,8 @@ public class CrimeListFragment extends Fragment {
 
                 updateSubtitle();
                 setMenuItemSubtitle(item);
+
+//                getActivity().invalidateOptionsMenu();
 
                 return true;
             default:
@@ -141,7 +143,7 @@ public class CrimeListFragment extends Fragment {
     }
 
     private void updateSubtitle() {
-        int numberOfCrimes = CrimeRepository.getInstance().getCrimes().size();
+        int numberOfCrimes = mRepository.getCrimes().size();
         String crimesText = mIsSubtitleVisible ? numberOfCrimes + " crimes" : null;
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();

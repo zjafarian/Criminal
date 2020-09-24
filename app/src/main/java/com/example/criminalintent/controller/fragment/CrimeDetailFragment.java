@@ -1,8 +1,6 @@
 package com.example.criminalintent.controller.fragment;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -16,14 +14,12 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.example.criminalintent.R;
 import com.example.criminalintent.model.Crime;
-import com.example.criminalintent.repository.CrimeRepository;
+import com.example.criminalintent.repository.CrimeDBRepository;
 import com.example.criminalintent.repository.IRepository;
 
 import java.util.Date;
@@ -63,7 +59,7 @@ public class CrimeDetailFragment extends Fragment {
 
         Log.d(TAG, "onCreate");
 
-        mRepository = CrimeRepository.getInstance();
+        mRepository = CrimeDBRepository.getInstance(getActivity());
 
         //this is storage of this fragment
         UUID crimeId = (UUID) getArguments().getSerializable(ARGS_CRIME_ID);

@@ -2,6 +2,7 @@ package com.example.criminalintent.repository;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.example.criminalintent.database.CrimeDBHelper;
@@ -10,6 +11,8 @@ import com.example.criminalintent.model.Crime;
 
 import static com.example.criminalintent.database.CrimeDBSchema.CrimeTable.Cols;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,6 +21,7 @@ public class CrimeDBRepository implements IRepository {
     private static CrimeDBRepository sInstance;
 
     private SQLiteDatabase mDatabase;
+    private Context mContext;
 
     public static CrimeDBRepository getInstance(Context context) {
         if (sInstance == null)
@@ -26,8 +30,9 @@ public class CrimeDBRepository implements IRepository {
         return sInstance;
     }
 
-    public CrimeDBRepository(Context context) {
-        CrimeDBHelper crimeDBHelper = new CrimeDBHelper(context);
+    private CrimeDBRepository(Context context) {
+        mContext = context.getApplicationContext();
+        CrimeDBHelper crimeDBHelper = new CrimeDBHelper(mContext);
 
         //all 4 checks happens on getDataBase
         mDatabase = crimeDBHelper.getWritableDatabase();
@@ -35,12 +40,61 @@ public class CrimeDBRepository implements IRepository {
 
     @Override
     public List<Crime> getCrimes() {
-        return null;
+        List<Crime> crimes = new ArrayList<>();
+
+        Cursor cursor = mDatabase.query(
+                CrimeDBSchema.CrimeTable.NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        if (cursor == null || cursor.getCount() == 0)
+            return crimes;
+
+        try {
+            cursor.moveToFirst();
+
+            while (!cursor.isAfterLast()) {
+                Crime crime = extractCrimeFromCursor(cursor);
+                crimes.add(crime);
+
+                cursor.moveToNext();
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return crimes;
     }
 
     @Override
     public Crime getCrime(UUID crimeId) {
-        return null;
+        String where = Cols.UUID + " = ?";
+        String[] whereArgs = new String[]{crimeId.toString()};
+
+        Cursor cursor = mDatabase.query(
+                CrimeDBSchema.CrimeTable.NAME,
+                null,
+                where,
+                whereArgs,
+                null,
+                null,
+                null);
+
+        if (cursor == null || cursor.getCount() == 0)
+            return null;
+
+        try {
+            cursor.moveToFirst();
+            Crime crime = extractCrimeFromCursor(cursor);
+
+            return crime;
+        } finally {
+            cursor.close();
+        }
     }
 
     @Override
@@ -66,7 +120,12 @@ public class CrimeDBRepository implements IRepository {
 
     @Override
     public int getPosition(UUID crimeId) {
-        return 0;
+        List<Crime> crimes = getCrimes();
+        for (int i = 0; i < crimes.size(); i++) {
+            if (crimes.get(i).getId().equals(crimeId))
+                return i;
+        }
+        return -1;
     }
 
     private ContentValues getContentValues(Crime crime) {
@@ -76,5 +135,14 @@ public class CrimeDBRepository implements IRepository {
         values.put(Cols.DATE, crime.getDate().getTime());
         values.put(Cols.SOLVED, crime.isSolved() ? 1 : 0);
         return values;
+    }
+
+    private Crime extractCrimeFromCursor(Cursor cursor) {
+        UUID uuid = UUID.fromString(cursor.getString(cursor.getColumnIndex(Cols.UUID)));
+        String title = cursor.getString(cursor.getColumnIndex(Cols.TITLE));
+        Date date = new Date(cursor.getLong(cursor.getColumnIndex(Cols.DATE)));
+        boolean solved = cursor.getInt(cursor.getColumnIndex(Cols.SOLVED)) == 0 ? false : true;
+
+        return new Crime(uuid, title, date, solved);
     }
 }

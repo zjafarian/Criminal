@@ -41,9 +41,20 @@ public class Crime {
     }
 
     public Crime() {
-        mId = UUID.randomUUID();
-        mDate = DateUtils.randomDate();
-//        mDate = new Date();
+        this(UUID.randomUUID());
+//        mDate = DateUtils.randomDate();
+    }
+
+    public Crime(UUID id) {
+        mId = id;
+        mDate = new Date();
+    }
+
+    public Crime(UUID id, String title, Date date, boolean solved) {
+        mId = id;
+        mTitle = title;
+        mDate = date;
+        mSolved = solved;
     }
 
     /*public static class Builder {

@@ -7,19 +7,22 @@ import androidx.fragment.app.Fragment;
 
 import com.example.criminalintent.controller.fragment.CrimeListFragment;
 
-public class CrimeListActivity extends SingleFragmentActivity {
-    public static final String EXTRA_CURRENT_INDEX = "com.example.criminalintent.CurrentIndex";
+import java.util.UUID;
 
-    public static Intent newIntent(Context context, int index) {
+public class CrimeListActivity extends SingleFragmentActivity {
+
+    public static final String EXTRA_ID_USER = "idUser";
+
+    public static Intent newIntent(Context context, UUID uuid) {
         Intent intent = new Intent(context, CrimeListActivity.class);
-        intent.putExtra(EXTRA_CURRENT_INDEX,index);
+        intent.putExtra(EXTRA_ID_USER,uuid);
         return intent;
     }
 
     @Override
     public Fragment createFragment() {
-        int index = getIntent().getIntExtra(EXTRA_CURRENT_INDEX,0);
-        CrimeListFragment crimeListFragment = CrimeListFragment.newInstance(index);
+        UUID uuid = (UUID) getIntent().getSerializableExtra(EXTRA_ID_USER);
+        CrimeListFragment crimeListFragment = CrimeListFragment.newInstance(uuid);
         return crimeListFragment;
     }
 

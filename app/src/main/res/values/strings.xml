@@ -13,4 +13,19 @@
     <string name="menu_item_clear">Clear</string>
     <string name="menu_item_show_subtitle">Show Subtitle</string>
     <string name="menu_item_hide_subtitle">Hide Subtitle</string>
+    <string name="title_activity_login">LoginActivity</string>
+
+    <string name="hint_username">UserName</string>
+    <string name="text_login">Login</string>
+    <string name="text_sing_up">Sign Up</string>
+    <string name="userText"></string>
+    <string name="passwordText"></string>
+    <string name="userTextSignUp"></string>
+    <string name="passwordSignUp"></string>
+    <string name="successful_message">LogIn was successful</string>
+    <string name="non_successful_message">user or password is incorrect</string>
+    <string name="message_signup">Please username and password</string>
+    <string name="message_not_sign_up">you not sign up</string>
+    <string name="message_find_false">you can not input and password correct</string>
+
 </resources>

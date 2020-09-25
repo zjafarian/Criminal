@@ -22,10 +22,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.criminalintent.R;
 import com.example.criminalintent.controller.activity.CrimePagerActivity;
 import com.example.criminalintent.model.Crime;
+import com.example.criminalintent.model.User;
 import com.example.criminalintent.repository.CrimeDBRepository;
 import com.example.criminalintent.repository.IRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 public class CrimeListFragment extends Fragment {
 
@@ -33,17 +35,20 @@ public class CrimeListFragment extends Fragment {
     public static final String BUNDLE_ARG_IS_SUBTITLE_VISIBLE = "isSubtitleVisible";
     public static final String ARGS_INDEX = "Index";
     private int mIndex=0;
-
+    public static final String ARGS_ID_USER = "argsIdUser";
+    private List<User> mUsers;
+    String mUserName;
     private RecyclerView mRecyclerView;
     private CrimeAdapter mCrimeAdapter;
-
-    private IRepository mRepository;
+    private CrimeDBRepository mRepository;
     private boolean mIsSubtitleVisible = false;
+    private UUID mUserId;
 
-    public static CrimeListFragment newInstance(int index) {
 
+    public static CrimeListFragment newInstance(int index, UUID uuid) {
         Bundle args = new Bundle();
-        args.putInt(ARGS_INDEX,0);
+        args.putInt(ARGS_INDEX,index);
+        args.putSerializable(ARGS_ID_USER, uuid);
         CrimeListFragment fragment = new CrimeListFragment();
         fragment.setArguments(args);
         return fragment;
@@ -56,13 +61,13 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setHasOptionsMenu(true);
         mRepository = CrimeDBRepository.getInstance(getActivity());
-
-
-
-
+        mUsers = mRepository.getUsers();
+        if (getArguments() != null) {
+            mUserId = (UUID) getArguments().getSerializable(ARGS_ID_USER);
+        }
+        setHasOptionsMenu(true);
         if (savedInstanceState != null)
             mIsSubtitleVisible =
                     savedInstanceState.getBoolean(BUNDLE_ARG_IS_SUBTITLE_VISIBLE, false);

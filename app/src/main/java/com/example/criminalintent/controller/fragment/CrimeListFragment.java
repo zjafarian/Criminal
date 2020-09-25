@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,6 +31,8 @@ public class CrimeListFragment extends Fragment {
 
     public static final String TAG = "CLF";
     public static final String BUNDLE_ARG_IS_SUBTITLE_VISIBLE = "isSubtitleVisible";
+    public static final String ARGS_INDEX = "Index";
+    private int mIndex;
 
     private RecyclerView mRecyclerView;
     private CrimeAdapter mCrimeAdapter;
@@ -37,10 +40,10 @@ public class CrimeListFragment extends Fragment {
     private IRepository mRepository;
     private boolean mIsSubtitleVisible = false;
 
-    public static CrimeListFragment newInstance() {
+    public static CrimeListFragment newInstance(int index) {
 
         Bundle args = new Bundle();
-
+        args.putInt(ARGS_INDEX,0);
         CrimeListFragment fragment = new CrimeListFragment();
         fragment.setArguments(args);
         return fragment;
@@ -56,6 +59,12 @@ public class CrimeListFragment extends Fragment {
 
         setHasOptionsMenu(true);
         mRepository = CrimeDBRepository.getInstance(getActivity());
+
+        if (getArguments() != null){
+            mIndex = getArguments().getInt(ARGS_INDEX);
+
+        }
+
 
         if (savedInstanceState != null)
             mIsSubtitleVisible =
@@ -139,7 +148,7 @@ public class CrimeListFragment extends Fragment {
             mRecyclerView.setAdapter(mCrimeAdapter);
         } else {
             mCrimeAdapter.setCrimes(crimes);
-            mCrimeAdapter.notifyDataSetChanged();
+            mCrimeAdapter.notifyItemChanged(mIndex);
         }
     }
 
@@ -229,4 +238,5 @@ public class CrimeListFragment extends Fragment {
             holder.bindCrime(crime);
         }
     }
+
 }

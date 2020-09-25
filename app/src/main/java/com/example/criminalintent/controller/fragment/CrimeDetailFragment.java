@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.criminalintent.R;
+import com.example.criminalintent.controller.activity.CrimeListActivity;
 import com.example.criminalintent.model.Crime;
 import com.example.criminalintent.repository.CrimeDBRepository;
 import com.example.criminalintent.repository.IRepository;
@@ -109,6 +110,9 @@ public class    CrimeDetailFragment extends Fragment {
     public void onPause() {
         super.onPause();
         updateCrime();
+        updateCrime();
+        Intent intent = CrimeListActivity.newIntent(getActivity(),mCurrentIndex );
+        startActivity(intent);
 
         Log.d(TAG, "onPause");
     }

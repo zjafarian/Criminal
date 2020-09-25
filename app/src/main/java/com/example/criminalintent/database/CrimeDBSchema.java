@@ -16,4 +16,15 @@ public class CrimeDBSchema {
             public static final String SOLVED = "solved";
         }
     }
+
+    public static final class UserTable {
+        public static final String Name="userTable";
+
+        public  static final class ColsUser {
+            public static final String ID="idUser";
+            public static final String UUIDUser="uuidUser";
+            public static final String USERNAME ="username";
+            public static final String Password="password";
+        }
+    }
 }

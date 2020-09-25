@@ -1,49 +1,55 @@
 package com.example.criminalintent.controller.fragment;
 
+import android.app.Activity;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.criminalintent.R;
+import com.example.criminalintent.model.User;
+import com.example.criminalintent.repository.CrimeDBRepository;
+import com.example.criminalintent.repository.UserRepository;
+import com.google.android.material.textfield.TextInputEditText;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SignUpFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+
 public class SignUpFragment extends Fragment {
+    public static final String SAVE_USER_NAME_SIGN_UP = "saveUserNameSignUp";
+    public static final String SAVE_PASSWORD_SIGN_UP = "savePasswordSignUp";
+    public static final String ARGS_USERNAME_SING_UP = "argsUsernameSingUp";
+    public static final String ARGS_PASSWORD_SIGN_UP = "argsPasswordSignUp";
+    public static final String USER_ID_SIGN_UP = "userIdSignUp";
+    private Button mSign;
+    private TextInputEditText mUserNameSignUp;
+    private TextInputEditText mPasswordSignUp;
+    private String username;
+    private String password;
+    private CrimeDBRepository mRepositoryUser;
+    private List<User> mUserList = new ArrayList<>();
+    private UUID mUserId;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     public SignUpFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SignUpFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SignUpFragment newInstance(String param1, String param2) {
+
+    public static SignUpFragment newInstance(String username, String password) {
         SignUpFragment fragment = new SignUpFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARGS_USERNAME_SING_UP, username);
+        args.putString(ARGS_PASSWORD_SIGN_UP, password);
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,16 +57,82 @@ public class SignUpFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+        mRepositoryUser = CrimeDBRepository.getInstance(getActivity());
+        //this is storage of this fragment
+        password = getArguments().getString(ARGS_PASSWORD_SIGN_UP);
+        username = getArguments().getString(ARGS_USERNAME_SING_UP);
+        mUserList = mRepositoryUser.getUsers();
+
+        //Handel SaveInstance
+        if (savedInstanceState != null) {
+            username = savedInstanceState.getString(SAVE_USER_NAME_SIGN_UP);
+            password = savedInstanceState.getString(SAVE_PASSWORD_SIGN_UP);
         }
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_sign_up, container, false);
+        View view = inflater.inflate(R.layout.fragment_sign_up, container, false);
+        setId(view);
+        initViews();
+        if (savedInstanceState != null) {
+            initViews();
+        }
+        setListener();
+        return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(SAVE_USER_NAME_SIGN_UP, username);
+        outState.putString(SAVE_PASSWORD_SIGN_UP, password);
+    }
+
+    private void setListener() {
+        mSign.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                username = mUserNameSignUp.getText().toString();
+                password = mPasswordSignUp.getText().toString();
+                if (username.matches("") || password.matches("")) {
+                    Toast toast = Toast.makeText(getActivity(),
+                            R.string.message_signup, Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.BOTTOM, 0, 0);
+                    toast.show();
+                } else {
+                    UUID id = UUID.randomUUID();
+                    User user = new User(id,username, password);
+                    mUserList.add(user);
+                    mRepositoryUser.insertUser(user);
+                    mUserId = user.getIdUser();
+                    LoginFragment loginFragment = LoginFragment.newInstance(mUserId);
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(USER_ID_SIGN_UP, mUserId);
+                    loginFragment.setArguments(bundle);
+                    getActivity().setResult(Activity.RESULT_OK);
+                    getActivity().finish();
+
+                }
+
+
+            }
+        });
+    }
+
+    private void initViews() {
+        mUserNameSignUp.setText(username);
+        mPasswordSignUp.setText(password);
+
+    }
+
+    private void setId(View view) {
+        mUserNameSignUp = view.findViewById(R.id.username_signUp);
+        mPasswordSignUp = view.findViewById(R.id.password_signUp);
+        mSign = view.findViewById(R.id.btn_signup_sign);
     }
 }

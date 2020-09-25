@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -32,6 +33,43 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/crime_solved_label"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/img_btn_first"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_first" />
+
+        <ImageButton
+            android:id="@+id/img_btn_previous"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_previous" />
+
+        <ImageButton
+            android:id="@+id/img_btn_next"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_next" />
+
+        <ImageButton
+            android:id="@+id/img_btn_last"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_last" />
+
+    </LinearLayout>
 
 
 </LinearLayout>

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -46,6 +47,7 @@ public class CrimePagerActivity extends AppCompatActivity {
         mCrimeId = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
 
         findViews();
+        mViewPagerCrimes.setPageTransformer(new ZoomOutPageTransFormer());
         initViews();
     }
 
@@ -94,6 +96,38 @@ public class CrimePagerActivity extends AppCompatActivity {
         @Override
         public int getItemCount() {
             return mCrimes.size();
+        }
+    }
+
+    private class ZoomOutPageTransFormer implements ViewPager2.PageTransformer {
+        private static final float MIN_SCALE = 0.85f;
+        private static final float MIN_ALPHA = 0.5f;
+
+
+        @Override
+        public void transformPage(@NonNull View page, float position) {
+            int pageWidth= page.getWidth();
+            int pageHeight = page.getHeight();
+            if (position<-1){
+                page.setAlpha(0F);
+            } else if (position <=1){
+                float scaleFactor = Math.max(MIN_SCALE,1 - Math.abs(position));
+                float vertMargin = pageHeight * (1 - scaleFactor) / 2;
+                float horzMargin = pageWidth * (1 - scaleFactor) / 2;
+                if (position < 0){
+                    page.setTranslationX(horzMargin - vertMargin / 2);
+                } else {
+                    page.setTranslationX(-horzMargin + vertMargin / 2);
+                }
+                page.setScaleX(scaleFactor);
+                page.setScaleY(scaleFactor);
+                page.setAlpha(MIN_ALPHA + (scaleFactor - MIN_SCALE) / (1 - MIN_SCALE) *
+                        (1 - MIN_ALPHA));
+
+            } else {
+                page.setAlpha(0F);
+            }
+
         }
     }
 }

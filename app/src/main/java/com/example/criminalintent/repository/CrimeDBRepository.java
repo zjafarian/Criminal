@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.example.criminalintent.database.CrimeDBHelper;
 import com.example.criminalintent.database.CrimeDBSchema;
 import com.example.criminalintent.model.Crime;
+import com.example.criminalintent.model.User;
 
 import static com.example.criminalintent.database.CrimeDBSchema.CrimeTable.Cols;
 
@@ -16,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-public class CrimeDBRepository implements IRepository {
+public class CrimeDBRepository implements IRepository, UserRepository {
 
     private static CrimeDBRepository sInstance;
 
@@ -128,6 +129,99 @@ public class CrimeDBRepository implements IRepository {
         return -1;
     }
 
+    @Override
+    public List<User> getUsers() {
+        List<User> users = new ArrayList<>();
+
+        Cursor cursor = mDatabase.query(
+                CrimeDBSchema.UserTable.Name,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        if (cursor == null || cursor.getCount() == 0)
+            return users;
+
+        try {
+            cursor.moveToFirst();
+
+            while (!cursor.isAfterLast()) {
+                User user = extractUserFromCursor(cursor);
+                users.add(user);
+
+                cursor.moveToNext();
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return users;
+    }
+
+    @Override
+    public User getUser(UUID userId) {
+        String where = CrimeDBSchema.UserTable.ColsUser.UUIDUser + " = ?";
+        String[] whereArgs = new String[]{userId.toString()};
+
+        Cursor cursor = mDatabase.query(
+                CrimeDBSchema.UserTable.Name,
+                null,
+                where,
+                whereArgs,
+                null,
+                null,
+                null);
+
+        if (cursor == null || cursor.getCount() == 0)
+            return null;
+
+        try {
+            cursor.moveToFirst();
+            User user = extractUserFromCursor(cursor);
+
+            return user;
+        } finally {
+            cursor.close();
+        }
+    }
+
+    @Override
+    public void insertUser(User user) {
+        ContentValues values = getContentValuesUser(user);
+        mDatabase.insert(CrimeDBSchema.CrimeTable.NAME, null, values);
+
+    }
+
+    @Override
+    public void updateUser(User user) {
+        ContentValues values = getContentValuesUser(user);
+        String whereClause = CrimeDBSchema.UserTable.ColsUser.UUIDUser + " = ?";
+        String[] whereArgs = new String[]{user.getIdUser().toString()};
+        mDatabase.update(CrimeDBSchema.UserTable.Name, values, whereClause, whereArgs);
+
+    }
+
+    @Override
+    public void deleteUser(User user) {
+        String whereClause = CrimeDBSchema.UserTable.ColsUser.UUIDUser + " = ?";
+        String[] whereArgs = new String[]{user.getIdUser().toString()};
+        mDatabase.delete(CrimeDBSchema.UserTable.Name, whereClause, whereArgs);
+
+    }
+
+    @Override
+    public int getPositionUser(UUID userId) {
+        List<User> users = getUsers();
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getIdUser().equals(userId))
+                return i;
+        }
+        return -1;
+    }
+
     private ContentValues getContentValues(Crime crime) {
         ContentValues values = new ContentValues();
         values.put(Cols.UUID, crime.getId().toString());
@@ -145,4 +239,22 @@ public class CrimeDBRepository implements IRepository {
 
         return new Crime(uuid, title, date, solved);
     }
+
+    private ContentValues getContentValuesUser(User user) {
+        ContentValues values = new ContentValues();
+        values.put(CrimeDBSchema.UserTable.ColsUser.UUIDUser, user.getIdUser().toString());
+        values.put(CrimeDBSchema.UserTable.ColsUser.USERNAME, user.getName());
+        values.put(CrimeDBSchema.UserTable.ColsUser.Password, user.getPassword());
+        return values;
+    }
+
+    private User extractUserFromCursor(Cursor cursor) {
+        UUID uuid = UUID.fromString(cursor.getString(cursor.getColumnIndex(CrimeDBSchema.UserTable.ColsUser.UUIDUser)));
+        String name = cursor.getString(cursor.getColumnIndex(CrimeDBSchema.UserTable.ColsUser.USERNAME));
+        String password = cursor.getString(cursor.getColumnIndex(CrimeDBSchema.UserTable.ColsUser.Password));
+
+        return new User(uuid, name, password);
+    }
+
+
 }

@@ -23,8 +23,16 @@ public class CrimeDBHelper extends SQLiteOpenHelper {
         sbQuery.append(Cols.DATE + " TEXT,");
         sbQuery.append(Cols.SOLVED + " INTEGER");
         sbQuery.append(");");
-
+        StringBuilder dbQuery = new StringBuilder();
+        dbQuery.append("CREATE TABLE " + CrimeDBSchema.CrimeTable.NAME + " (");
+        dbQuery.append(Cols.ID + " INTEGER PRIMARY KEY AUTOINCREMENT,");
+        dbQuery.append(Cols.UUID + " TEXT NOT NULL,");
+        dbQuery.append(Cols.TITLE + " TEXT,");
+        dbQuery.append(Cols.DATE + " TEXT,");
+        dbQuery.append(Cols.SOLVED + " INTEGER");
+        dbQuery.append(");");
         db.execSQL(sbQuery.toString());
+        db.execSQL(dbQuery.toString());
     }
 
     @Override

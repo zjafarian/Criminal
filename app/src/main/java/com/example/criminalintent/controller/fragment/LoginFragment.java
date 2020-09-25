@@ -155,7 +155,7 @@ public class LoginFragment extends Fragment {
                             mUserId=user.getIdUser();
                         }
 
-                        Intent intent = CrimeListActivity.newIntent(getActivity(), mUserId);
+                        Intent intent = CrimeListActivity.newIntent(getActivity(), 0,mUserId);
                         startActivity(intent);
 
                     }

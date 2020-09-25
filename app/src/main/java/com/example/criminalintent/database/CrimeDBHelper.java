@@ -16,12 +16,11 @@ public class CrimeDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         StringBuilder sbQuery = new StringBuilder();
-        sbQuery.append("CREATE TABLE " + CrimeDBSchema.CrimeTable.NAME + " (");
-        sbQuery.append(Cols.ID + " INTEGER PRIMARY KEY AUTOINCREMENT,");
-        sbQuery.append(Cols.UUID + " TEXT NOT NULL,");
-        sbQuery.append(Cols.TITLE + " TEXT,");
-        sbQuery.append(Cols.DATE + " TEXT,");
-        sbQuery.append(Cols.SOLVED + " INTEGER");
+        sbQuery.append("CREATE TABLE " + CrimeDBSchema.UserTable.Name + " (");
+        sbQuery.append(CrimeDBSchema.UserTable.ColsUser.ID + " INTEGER PRIMARY KEY AUTOINCREMENT,");
+        sbQuery.append(CrimeDBSchema.UserTable.ColsUser.UUIDUser + " TEXT NOT NULL,");
+        sbQuery.append(CrimeDBSchema.UserTable.ColsUser.USERNAME+ " TEXT,");
+        sbQuery.append(CrimeDBSchema.UserTable.ColsUser.Password + " TEXT");
         sbQuery.append(");");
         StringBuilder dbQuery = new StringBuilder();
         dbQuery.append("CREATE TABLE " + CrimeDBSchema.CrimeTable.NAME + " (");

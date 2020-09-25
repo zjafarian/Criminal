@@ -46,7 +46,7 @@ public class    CrimeDetailFragment extends Fragment {
     private Button mButtonDate;
     private CheckBox mCheckBoxSolved;
     private Crime mCrime;
-    private IRepository mRepository;
+    private CrimeDBRepository mRepository;
     public static final String ARGS_SAVE_INDEX = "save_index";
 
     public static CrimeDetailFragment newInstance(UUID crimeId) {
@@ -117,7 +117,7 @@ public class    CrimeDetailFragment extends Fragment {
 
         }
 
-        Intent intent = CrimeListActivity.newIntent(getActivity(),index);
+        Intent intent = CrimeListActivity.newIntent(getActivity(),index,mIdCrime);
         startActivity(intent);
 
         Log.d(TAG, "onPause");

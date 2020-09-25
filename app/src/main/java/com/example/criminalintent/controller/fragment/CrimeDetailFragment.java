@@ -110,8 +110,14 @@ public class    CrimeDetailFragment extends Fragment {
     public void onPause() {
         super.onPause();
         updateCrime();
-        updateCrime();
-        Intent intent = CrimeListActivity.newIntent(getActivity(),mCurrentIndex );
+        int index=0;
+        for (int i = 0; i <mCrimeList.size() ; i++) {
+            if (mCrimeList.get(i).getId().equals(mIdCrime))
+                index =i;
+
+        }
+
+        Intent intent = CrimeListActivity.newIntent(getActivity(),index);
         startActivity(intent);
 
         Log.d(TAG, "onPause");

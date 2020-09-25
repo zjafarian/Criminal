@@ -32,7 +32,7 @@ public class CrimeListFragment extends Fragment {
     public static final String TAG = "CLF";
     public static final String BUNDLE_ARG_IS_SUBTITLE_VISIBLE = "isSubtitleVisible";
     public static final String ARGS_INDEX = "Index";
-    private int mIndex;
+    private int mIndex=0;
 
     private RecyclerView mRecyclerView;
     private CrimeAdapter mCrimeAdapter;
@@ -60,10 +60,7 @@ public class CrimeListFragment extends Fragment {
         setHasOptionsMenu(true);
         mRepository = CrimeDBRepository.getInstance(getActivity());
 
-        if (getArguments() != null){
-            mIndex = getArguments().getInt(ARGS_INDEX);
 
-        }
 
 
         if (savedInstanceState != null)
@@ -126,8 +123,11 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if (getArguments() != null){
+            mIndex = getArguments().getInt(ARGS_INDEX);
+            updateUI(mIndex);
+        }
 
-        updateUI();
         updateSubtitle();
     }
 
@@ -137,18 +137,18 @@ public class CrimeListFragment extends Fragment {
 
     private void initViews() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        updateUI();
+        updateUI(mIndex);
     }
 
-    private void updateUI() {
+    private void updateUI(int index) {
         List<Crime> crimes = mRepository.getCrimes();
 
         if (mCrimeAdapter == null) {
             mCrimeAdapter = new CrimeAdapter(crimes);
             mRecyclerView.setAdapter(mCrimeAdapter);
         } else {
-            mCrimeAdapter.setCrimes(crimes);
-            mCrimeAdapter.notifyItemChanged(mIndex);
+            //mCrimeAdapter.setCrimes(crimes);
+            mCrimeAdapter.notifyItemChanged(index);
         }
     }
 

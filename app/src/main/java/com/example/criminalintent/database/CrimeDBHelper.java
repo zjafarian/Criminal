@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import static com.example.criminalintent.database.CrimeDBSchema.CrimeTable.Cols;
+import static com.example.criminalintent.database.CrimeDBSchema.UserTable.ColsUser;
 
 import androidx.annotation.Nullable;
 
@@ -17,10 +18,10 @@ public class CrimeDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         StringBuilder sbQuery = new StringBuilder();
         sbQuery.append("CREATE TABLE " + CrimeDBSchema.UserTable.Name + " (");
-        sbQuery.append(CrimeDBSchema.UserTable.ColsUser.ID + " INTEGER PRIMARY KEY AUTOINCREMENT,");
-        sbQuery.append(CrimeDBSchema.UserTable.ColsUser.UUIDUser + " TEXT NOT NULL,");
-        sbQuery.append(CrimeDBSchema.UserTable.ColsUser.USERNAME+ " TEXT,");
-        sbQuery.append(CrimeDBSchema.UserTable.ColsUser.Password + " TEXT");
+        sbQuery.append(ColsUser.ID + " INTEGER PRIMARY KEY AUTOINCREMENT,");
+        sbQuery.append(ColsUser.UUIDUser + " TEXT NOT NULL,");
+        sbQuery.append(ColsUser.USERNAME+ " TEXT,");
+        sbQuery.append(ColsUser.Password + " TEXT");
         sbQuery.append(");");
         StringBuilder dbQuery = new StringBuilder();
         dbQuery.append("CREATE TABLE " + CrimeDBSchema.CrimeTable.NAME + " (");

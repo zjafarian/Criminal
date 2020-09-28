@@ -46,7 +46,7 @@ public class    CrimeDetailFragment extends Fragment {
     private Button mButtonDate;
     private CheckBox mCheckBoxSolved;
     private Crime mCrime;
-    private CrimeDBRepository mRepository;
+    private IRepository mRepository;
     public static final String ARGS_SAVE_INDEX = "save_index";
 
     public static CrimeDetailFragment newInstance(UUID crimeId) {
@@ -150,7 +150,6 @@ public class    CrimeDetailFragment extends Fragment {
         mEditTextTitle.setText(mCrime.getTitle());
         mCheckBoxSolved.setChecked(mCrime.isSolved());
         mButtonDate.setText(mCrime.getDate().toString());
-        mButtonDate.setEnabled(false);
     }
 
     private void setListeners() {

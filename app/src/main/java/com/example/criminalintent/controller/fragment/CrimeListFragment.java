@@ -40,7 +40,7 @@ public class CrimeListFragment extends Fragment {
     String mUserName;
     private RecyclerView mRecyclerView;
     private CrimeAdapter mCrimeAdapter;
-    private CrimeDBRepository mRepository;
+    private IRepository mRepository;
     private boolean mIsSubtitleVisible = false;
     private UUID mUserId;
 

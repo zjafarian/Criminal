@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-public class CrimeDBRepository implements IRepository, UserRepository {
+public class CrimeDBRepository implements IRepository {
 
     private static CrimeDBRepository sInstance;
 

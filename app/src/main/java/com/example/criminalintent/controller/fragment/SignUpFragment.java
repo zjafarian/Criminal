@@ -1,6 +1,7 @@
 package com.example.criminalintent.controller.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,9 +15,10 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.criminalintent.R;
+import com.example.criminalintent.controller.activity.LoginActivity;
 import com.example.criminalintent.model.User;
 import com.example.criminalintent.repository.CrimeDBRepository;
-import com.example.criminalintent.repository.UserRepository;
+import com.example.criminalintent.repository.IRepository;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
@@ -29,13 +31,15 @@ public class SignUpFragment extends Fragment {
     public static final String SAVE_PASSWORD_SIGN_UP = "savePasswordSignUp";
     public static final String ARGS_USERNAME_SING_UP = "argsUsernameSingUp";
     public static final String ARGS_PASSWORD_SIGN_UP = "argsPasswordSignUp";
-    public static final String USER_ID_SIGN_UP = "userIdSignUp";
+    public static final String USER_ID_SIGN_UP = " com.example.criminalintent.userIdSignUp";
+    public static final String EXTRA_REPOSITORY = "Repository";
+    public static final String EXTRA_USER_ID = " com.example.criminalintent.userId";
     private Button mSign;
     private TextInputEditText mUserNameSignUp;
     private TextInputEditText mPasswordSignUp;
     private String username;
     private String password;
-    private CrimeDBRepository mRepositoryUser;
+    private IRepository mRepositoryUser;
     private List<User> mUserList = new ArrayList<>();
     private UUID mUserId;
 
@@ -110,13 +114,9 @@ public class SignUpFragment extends Fragment {
                     mUserList.add(user);
                     mRepositoryUser.insertUser(user);
                     mUserId = user.getIdUser();
-                    LoginFragment loginFragment = LoginFragment.newInstance(mUserId);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(USER_ID_SIGN_UP, mUserId);
-                    loginFragment.setArguments(bundle);
-                    getActivity().setResult(Activity.RESULT_OK);
+                    Intent intent = LoginActivity.newIntent(getActivity(),mUserId);
+                    getActivity().setResult(Activity.RESULT_OK,intent);
                     getActivity().finish();
-
                 }
 
 

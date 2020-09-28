@@ -21,7 +21,7 @@ import com.example.criminalintent.controller.activity.LoginActivity;
 import com.example.criminalintent.controller.activity.SignUpActivity;
 import com.example.criminalintent.model.User;
 import com.example.criminalintent.repository.CrimeDBRepository;
-import com.example.criminalintent.repository.UserRepository;
+import com.example.criminalintent.repository.IRepository;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
@@ -41,9 +41,10 @@ public class LoginFragment extends Fragment {
     private TextInputEditText mPasswordLogin;
     private String username = "";
     private String password = "";
-    private CrimeDBRepository mUserRepository;
+    private IRepository mUserRepository;
     private List<User> mUsers = new ArrayList<>();
     private UUID mUserId;
+    private User mUser;
 
 
     public LoginFragment() {
@@ -65,15 +66,6 @@ public class LoginFragment extends Fragment {
         mUsers = mUserRepository.getUsers();
         if (getArguments() != null) {
             mUserId = (UUID) getArguments().getSerializable(ARGS_ID_USER);
-            if (mUsers.size() != 0) {
-                for (User user1 : mUsers) {
-                    if (user1.getIdUser().equals(mUserId)) {
-                        username = user1.getName();
-                        password = user1.getPassword();
-                    }
-                }
-            }
-
         }
 
         //Handel saveInstance
@@ -118,7 +110,7 @@ public class LoginFragment extends Fragment {
         if (resultCode != Activity.RESULT_OK || data == null)
             return;
         if (requestCode == REQUEST_CODE_SING_UP) {
-            mUserId = (UUID) getArguments().getSerializable(LoginActivity.EXTRA_ID_USER);
+            mUserId = (UUID) data.getSerializableExtra(LoginActivity.EXTRA_ID_USER);
             User user = null;
             for (User userFind : mUsers) {
                 if (userFind.getIdUser().equals(mUserId))
@@ -135,31 +127,49 @@ public class LoginFragment extends Fragment {
             public void onClick(View v) {
                 username = mUsernameLogin.getText().toString().trim();
                 password = mPasswordLogin.getText().toString().trim();
-                if (!mButton_signUp.isClickable()) {
-                    Toast toast = Toast.makeText(getActivity(), R.string.message_not_sign_up,
-                            Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.BOTTOM, 0, 0);
-                    toast.show();
+                mUsers = mUserRepository.getUsers();
+                if (mUsers.size()==0){
+                    if (!mButton_signUp.isClickable()) {
+                        Toast toast = Toast.makeText(getActivity(), R.string.message_not_sign_up,
+                                Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.BOTTOM, 0, 0);
+                        toast.show();
 
+                    } else {
+                        if (username.matches("") || password.matches("")) {
+                            Toast toast = Toast.makeText(getActivity(), R.string.message_signup,
+                                    Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.BOTTOM, 0, 0);
+                            toast.show();
+                        }
+                    }
                 } else {
                     if (username.matches("") || password.matches("")) {
                         Toast toast = Toast.makeText(getActivity(), R.string.message_signup,
                                 Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.BOTTOM, 0, 0);
                         toast.show();
-                    } else {
-                        User user = null;
-                        for (User userFind: mUsers) {
-                            if (userFind.getName().equals(username) && userFind.getPassword().equals(password))
-                                user = userFind;
-                            mUserId=user.getIdUser();
+                    }else {
+                        for (int i = 0; i <mUsers.size() ; i++) {
+                            if (mUsers.get(i).getName().equals(username) &&
+                                    mUsers.get(i).getPassword().equals(password))
+                                mUserId=mUsers.get(i).getIdUser();
                         }
-
                         Intent intent = CrimeListActivity.newIntent(getActivity(), 0,mUserId);
                         startActivity(intent);
-
                     }
+
+
+
+
                 }
+
+
+
+
+
+
+
             }
         });
 
@@ -168,8 +178,7 @@ public class LoginFragment extends Fragment {
             public void onClick(View v) {
                 username = mUsernameLogin.getText().toString().trim();
                 password = mPasswordLogin.getText().toString().trim();
-                Intent intent = SignUpActivity.newIntent(getActivity(),
-                        username, password);
+                Intent intent = SignUpActivity.newIntent(getActivity(), username, password);
                 startActivityForResult(intent, REQUEST_CODE_SING_UP);
 
             }

@@ -44,7 +44,7 @@ public class LoginFragment extends Fragment {
     private IRepository mUserRepository;
     private List<User> mUsers = new ArrayList<>();
     private UUID mUserId;
-    private User mUser;
+    private boolean mCheck=false;
 
 
     public LoginFragment() {
@@ -112,13 +112,6 @@ public class LoginFragment extends Fragment {
         if (requestCode == REQUEST_CODE_SING_UP) {
             mUserId = (UUID) data.getSerializableExtra(LoginActivity.EXTRA_ID_USER);
             mUsers = mUserRepository.getUsers();
-            User user = null;
-            for (User userFind : mUsers) {
-                if (userFind.getIdUser().equals(mUserId))
-                    user = userFind;
-            }
-            username = user.getName();
-            password = user.getPassword();
         }
     }
 
@@ -129,7 +122,7 @@ public class LoginFragment extends Fragment {
                 username = mUsernameLogin.getText().toString().trim();
                 password = mPasswordLogin.getText().toString().trim();
                 mUsers = mUserRepository.getUsers();
-                if (mUsers.size()==0){
+                if (mUsers.size() == 0) {
                     if (!mButton_signUp.isClickable()) {
                         Toast toast = Toast.makeText(getActivity(), R.string.message_not_sign_up,
                                 Toast.LENGTH_LONG);
@@ -150,25 +143,29 @@ public class LoginFragment extends Fragment {
                                 Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.BOTTOM, 0, 0);
                         toast.show();
-                    }else {
-                        for (int i = 0; i <mUsers.size() ; i++) {
-                            if (mUsers.get(i).getName().equals(username) &&
-                                    mUsers.get(i).getPassword().equals(password))
-                                mUserId=mUsers.get(i).getIdUser();
+                    } else {
+                        for (User userFind : mUsers) {
+                            if (userFind.getName().equals(username)
+                                    && userFind.getPassword().equals(password)) {
+                                mUserId = userFind.getIdUser();
+                                mCheck = true;
+                            }
                         }
-                        Intent intent = CrimeListActivity.newIntent(getActivity(), 0,mUserId);
-                        startActivity(intent);
+                        if (mCheck){
+                            Intent intent =
+                                    CrimeListActivity.newIntent(getActivity(), 0, mUserId);
+                            startActivity(intent);
+                        }else {
+                            Toast toast = Toast.makeText(getActivity(),
+                                    "username or password is wrong", Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.BOTTOM, 0, 0);
+                            toast.show();
+                        }
+
                     }
 
 
-
-
                 }
-
-
-
-
-
 
 
             }

@@ -34,7 +34,7 @@ public class CrimeListFragment extends Fragment {
     public static final String TAG = "CLF";
     public static final String BUNDLE_ARG_IS_SUBTITLE_VISIBLE = "isSubtitleVisible";
     public static final String ARGS_INDEX = "Index";
-    private int mIndex=0;
+    private int mIndex = 0;
     public static final String ARGS_ID_USER = "argsIdUser";
     private List<User> mUsers;
     String mUserName;
@@ -43,11 +43,12 @@ public class CrimeListFragment extends Fragment {
     private IRepository mRepository;
     private boolean mIsSubtitleVisible = false;
     private UUID mUserId;
+    private User mUser;
 
 
     public static CrimeListFragment newInstance(int index, UUID uuid) {
         Bundle args = new Bundle();
-        args.putInt(ARGS_INDEX,index);
+        args.putInt(ARGS_INDEX, index);
         args.putSerializable(ARGS_ID_USER, uuid);
         CrimeListFragment fragment = new CrimeListFragment();
         fragment.setArguments(args);
@@ -66,6 +67,10 @@ public class CrimeListFragment extends Fragment {
         mUsers = mRepository.getUsers();
         if (getArguments() != null) {
             mUserId = (UUID) getArguments().getSerializable(ARGS_ID_USER);
+        }
+        for (User userFind : mUsers) {
+            if (userFind.getIdUser().equals(mUserId))
+                mUser = userFind;
         }
         setHasOptionsMenu(true);
         if (savedInstanceState != null)
@@ -128,7 +133,7 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (getArguments() != null){
+        if (getArguments() != null) {
             mIndex = getArguments().getInt(ARGS_INDEX);
             updateUI(mIndex);
         }
@@ -162,6 +167,7 @@ public class CrimeListFragment extends Fragment {
         String crimesText = mIsSubtitleVisible ? numberOfCrimes + " crimes" : null;
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().setTitle(mUser.getName());
         activity.getSupportActionBar().setSubtitle(crimesText);
     }
 

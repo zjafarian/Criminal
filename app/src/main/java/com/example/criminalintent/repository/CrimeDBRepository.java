@@ -190,8 +190,8 @@ public class CrimeDBRepository implements IRepository {
 
     @Override
     public void insertUser(User user) {
-        ContentValues values = getContentValuesUser(user);
-        mDatabase.insert(CrimeDBSchema.CrimeTable.NAME, null, values);
+       ContentValues values = getContentValuesUser(user);
+        mDatabase.insert(CrimeDBSchema.UserTable.Name, null, values);
 
     }
 

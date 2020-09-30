@@ -111,6 +111,7 @@ public class LoginFragment extends Fragment {
             return;
         if (requestCode == REQUEST_CODE_SING_UP) {
             mUserId = (UUID) data.getSerializableExtra(LoginActivity.EXTRA_ID_USER);
+            mUsers = mUserRepository.getUsers();
             User user = null;
             for (User userFind : mUsers) {
                 if (userFind.getIdUser().equals(mUserId))

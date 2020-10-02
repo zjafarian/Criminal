@@ -29,6 +29,7 @@ public class CrimeDBHelper extends SQLiteOpenHelper {
         dbQuery.append(Cols.UUID + " TEXT NOT NULL,");
         dbQuery.append(Cols.TITLE + " TEXT,");
         dbQuery.append(Cols.DATE + " TEXT,");
+        sbQuery.append(Cols.SUSPECT + " TEXT, ");
         dbQuery.append(Cols.SOLVED + " INTEGER");
         dbQuery.append(");");
         db.execSQL(sbQuery.toString());

@@ -42,30 +42,20 @@ public class CrimeDBRepository implements IRepository {
     @Override
     public List<Crime> getCrimes() {
         List<Crime> crimes = new ArrayList<>();
+        CrimeCursorWrapper crimeCursorWrapper = queryCrimeCursor(null, null);
 
-        Cursor cursor = mDatabase.query(
-                CrimeDBSchema.CrimeTable.NAME,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null);
-
-        if (cursor == null || cursor.getCount() == 0)
+        if (crimeCursorWrapper == null || crimeCursorWrapper.getCount() == 0)
             return crimes;
 
         try {
-            cursor.moveToFirst();
+            crimeCursorWrapper.moveToFirst();
 
-            while (!cursor.isAfterLast()) {
-                Crime crime = extractCrimeFromCursor(cursor);
-                crimes.add(crime);
-
-                cursor.moveToNext();
+            while (!crimeCursorWrapper.isAfterLast()) {
+                crimes.add(crimeCursorWrapper.getCrime());
+                crimeCursorWrapper.moveToNext();
             }
         } finally {
-            cursor.close();
+            crimeCursorWrapper.close();
         }
 
         return crimes;
@@ -76,25 +66,16 @@ public class CrimeDBRepository implements IRepository {
         String where = Cols.UUID + " = ?";
         String[] whereArgs = new String[]{crimeId.toString()};
 
-        Cursor cursor = mDatabase.query(
-                CrimeDBSchema.CrimeTable.NAME,
-                null,
-                where,
-                whereArgs,
-                null,
-                null,
-                null);
+        CrimeCursorWrapper crimeCursorWrapper = queryCrimeCursor(where, whereArgs);
 
-        if (cursor == null || cursor.getCount() == 0)
+        if (crimeCursorWrapper == null || crimeCursorWrapper.getCount() == 0)
             return null;
 
         try {
-            cursor.moveToFirst();
-            Crime crime = extractCrimeFromCursor(cursor);
-
-            return crime;
+            crimeCursorWrapper.moveToFirst();
+            return crimeCursorWrapper.getCrime();
         } finally {
-            cursor.close();
+            crimeCursorWrapper.close();
         }
     }
 
@@ -133,29 +114,20 @@ public class CrimeDBRepository implements IRepository {
     public List<User> getUsers() {
         List<User> users = new ArrayList<>();
 
-        Cursor cursor = mDatabase.query(
-                CrimeDBSchema.UserTable.Name,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null);
+        CrimeCursorWrapper crimeCursorWrapper = queryUserCursor(null, null);
 
-        if (cursor == null || cursor.getCount() == 0)
+        if (crimeCursorWrapper == null || crimeCursorWrapper.getCount() == 0)
             return users;
 
         try {
-            cursor.moveToFirst();
+            crimeCursorWrapper.moveToFirst();
 
-            while (!cursor.isAfterLast()) {
-                User user = extractUserFromCursor(cursor);
-                users.add(user);
-
-                cursor.moveToNext();
+            while (!crimeCursorWrapper.isAfterLast()) {
+                users.add(crimeCursorWrapper.getUser());
+                crimeCursorWrapper.moveToNext();
             }
         } finally {
-            cursor.close();
+            crimeCursorWrapper.close();
         }
 
         return users;
@@ -166,31 +138,23 @@ public class CrimeDBRepository implements IRepository {
         String where = CrimeDBSchema.UserTable.ColsUser.UUIDUser + " = ?";
         String[] whereArgs = new String[]{userId.toString()};
 
-        Cursor cursor = mDatabase.query(
-                CrimeDBSchema.UserTable.Name,
-                null,
-                where,
-                whereArgs,
-                null,
-                null,
-                null);
 
-        if (cursor == null || cursor.getCount() == 0)
+        CrimeCursorWrapper crimeCursorWrapper = queryUserCursor(where, whereArgs);
+
+        if (crimeCursorWrapper == null || crimeCursorWrapper.getCount() == 0)
             return null;
 
         try {
-            cursor.moveToFirst();
-            User user = extractUserFromCursor(cursor);
-
-            return user;
+            crimeCursorWrapper.moveToFirst();
+            return crimeCursorWrapper.getUser();
         } finally {
-            cursor.close();
+            crimeCursorWrapper.close();
         }
     }
 
     @Override
     public void insertUser(User user) {
-       ContentValues values = getContentValuesUser(user);
+        ContentValues values = getContentValuesUser(user);
         mDatabase.insert(CrimeDBSchema.UserTable.Name, null, values);
 
     }
@@ -222,6 +186,36 @@ public class CrimeDBRepository implements IRepository {
         return -1;
     }
 
+
+
+    private CrimeCursorWrapper queryCrimeCursor(String where, String[] whereArgs) {
+        Cursor cursor = mDatabase.query(
+                CrimeDBSchema.CrimeTable.NAME,
+                null,
+                where,
+                whereArgs,
+                null,
+                null,
+                null);
+
+        CrimeCursorWrapper crimeCursorWrapper = new CrimeCursorWrapper(cursor);
+        return crimeCursorWrapper;
+    }
+
+    private CrimeCursorWrapper queryUserCursor(String where, String[] whereArgs) {
+        Cursor cursor = mDatabase.query(
+                CrimeDBSchema.UserTable.Name,
+                null,
+                where,
+                whereArgs,
+                null,
+                null,
+                null);
+
+        CrimeCursorWrapper crimeCursorWrapper = new CrimeCursorWrapper(cursor);
+        return crimeCursorWrapper;
+    }
+
     private ContentValues getContentValues(Crime crime) {
         ContentValues values = new ContentValues();
         values.put(Cols.UUID, crime.getId().toString());
@@ -231,29 +225,12 @@ public class CrimeDBRepository implements IRepository {
         return values;
     }
 
-    private Crime extractCrimeFromCursor(Cursor cursor) {
-        UUID uuid = UUID.fromString(cursor.getString(cursor.getColumnIndex(Cols.UUID)));
-        String title = cursor.getString(cursor.getColumnIndex(Cols.TITLE));
-        Date date = new Date(cursor.getLong(cursor.getColumnIndex(Cols.DATE)));
-        boolean solved = cursor.getInt(cursor.getColumnIndex(Cols.SOLVED)) == 0 ? false : true;
-
-        return new Crime(uuid, title, date, solved);
-    }
-
     private ContentValues getContentValuesUser(User user) {
         ContentValues values = new ContentValues();
         values.put(CrimeDBSchema.UserTable.ColsUser.UUIDUser, user.getIdUser().toString());
         values.put(CrimeDBSchema.UserTable.ColsUser.USERNAME, user.getName());
         values.put(CrimeDBSchema.UserTable.ColsUser.Password, user.getPassword());
         return values;
-    }
-
-    private User extractUserFromCursor(Cursor cursor) {
-        UUID uuid = UUID.fromString(cursor.getString(cursor.getColumnIndex(CrimeDBSchema.UserTable.ColsUser.UUIDUser)));
-        String name = cursor.getString(cursor.getColumnIndex(CrimeDBSchema.UserTable.ColsUser.USERNAME));
-        String password = cursor.getString(cursor.getColumnIndex(CrimeDBSchema.UserTable.ColsUser.Password));
-
-        return new User(uuid, name, password);
     }
 
 

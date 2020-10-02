@@ -3,6 +3,7 @@ package com.example.criminalintent.controller.fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -24,6 +25,7 @@ import com.example.criminalintent.model.Crime;
 import com.example.criminalintent.repository.CrimeDBRepository;
 import com.example.criminalintent.repository.IRepository;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +37,8 @@ public class    CrimeDetailFragment extends Fragment {
     public static final String ARGS_CRIME_ID = "crimeId";
     public static final String FRAGMENT_TAG_DATE_PICKER = "DatePicker";
     public static final int REQUEST_CODE_DATE_PICKER = 0;
+    private static final int REQUEST_CODE_SELECT_CONTACT = 1;
+
     private ImageButton mImgBtnFirst;
     private ImageButton mImgBtnPrevious;
     private ImageButton mImgBtnNext;
@@ -48,6 +52,9 @@ public class    CrimeDetailFragment extends Fragment {
     private Crime mCrime;
     private IRepository mRepository;
     public static final String ARGS_SAVE_INDEX = "save_index";
+    private Button mButtonSuspect;
+    private Button mButtonReport;
+
 
     public static CrimeDetailFragment newInstance(UUID crimeId) {
 
@@ -144,6 +151,8 @@ public class    CrimeDetailFragment extends Fragment {
         mImgBtnFirst = view.findViewById(R.id.img_btn_first);
         mImgBtnNext = view.findViewById(R.id.img_btn_next);
         mImgBtnLast = view.findViewById(R.id.img_btn_last);
+        mButtonSuspect = view.findViewById(R.id.choose_suspect);
+        mButtonReport = view.findViewById(R.id.send_report);
     }
 
     private void initViews() {
@@ -229,6 +238,22 @@ public class    CrimeDetailFragment extends Fragment {
 
             }
         });
+
+        mButtonSuspect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectContact();
+            }
+        });
+
+        mButtonReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shareReportIntent();
+            }
+        });
+
+
     }
 
     private void updateCrime() {
@@ -246,5 +271,51 @@ public class    CrimeDetailFragment extends Fragment {
         mEditTextTitle.setText(mCrime.getTitle());
         mCheckBoxSolved.setChecked(mCrime.isSolved());
 
+    }
+
+    private String getReport() {
+        String title = mCrime.getTitle();
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:SS");
+        String dateString = simpleDateFormat.format(mCrime.getDate());
+
+        String solvedString = mCrime.isSolved() ?
+                getString(R.string.crime_report_solved) :
+                getString(R.string.crime_report_unsolved);
+
+        String suspectString = mCrime.getSuspect() == null ?
+                getString(R.string.crime_report_no_suspect) :
+                getString(R.string.crime_report_suspect, mCrime.getSuspect());
+
+        String report = getString(
+                R.string.crime_report,
+                title,
+                dateString,
+                solvedString,
+                suspectString);
+
+        return report;
+    }
+
+    private void shareReportIntent() {
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, getReport());
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
+        sendIntent.setType("text/plain");
+
+        Intent shareIntent =
+                Intent.createChooser(sendIntent, getString(R.string.send_report));
+
+        //we prevent app from crash if the intent has no destination.
+        if (sendIntent.resolveActivity(getActivity().getPackageManager()) != null)
+            startActivity(shareIntent);
+    }
+
+    private void selectContact() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivityForResult(intent, REQUEST_CODE_SELECT_CONTACT);
+        }
     }
 }

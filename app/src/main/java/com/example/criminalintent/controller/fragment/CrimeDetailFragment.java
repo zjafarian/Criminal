@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.ShareCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.criminalintent.R;
@@ -324,12 +325,14 @@ public class CrimeDetailFragment extends Fragment {
         sendIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
         sendIntent.setType("text/plain");
 
+
         Intent shareIntent =
                 Intent.createChooser(sendIntent, getString(R.string.send_report));
-
         //we prevent app from crash if the intent has no destination.
         if (sendIntent.resolveActivity(getActivity().getPackageManager()) != null)
             startActivity(shareIntent);
+
+
     }
 
     private void selectContact() {

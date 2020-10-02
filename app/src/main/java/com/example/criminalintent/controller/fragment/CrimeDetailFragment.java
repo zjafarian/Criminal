@@ -31,7 +31,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-public class    CrimeDetailFragment extends Fragment {
+public class CrimeDetailFragment extends Fragment {
 
     public static final String TAG = "CDF";
     public static final String ARGS_CRIME_ID = "crimeId";
@@ -54,6 +54,8 @@ public class    CrimeDetailFragment extends Fragment {
     public static final String ARGS_SAVE_INDEX = "save_index";
     private Button mButtonSuspect;
     private Button mButtonReport;
+    private Button mButtonCall;
+    private Button mButtonDial;
 
 
     public static CrimeDetailFragment newInstance(UUID crimeId) {
@@ -82,7 +84,8 @@ public class    CrimeDetailFragment extends Fragment {
         //this is storage of this fragment
         UUID crimeId = (UUID) getArguments().getSerializable(ARGS_CRIME_ID);
         mCurrentIndex = getArguments().getInt(ARGS_SAVE_INDEX);
-        mCrime = mRepository.getCrime(crimeId);for (int i = 0; i < mRepository.getCrimes().size(); i++) {
+        mCrime = mRepository.getCrime(crimeId);
+        for (int i = 0; i < mRepository.getCrimes().size(); i++) {
             if (mCrimeList.get(i).getId().equals(crimeId))
                 mCurrentIndex = i;
         }
@@ -93,6 +96,7 @@ public class    CrimeDetailFragment extends Fragment {
      * 1. Inflate the layout (or create layout in code)
      * 2. find all views
      * 3. logic for all views (like setListeners)
+     *
      * @param inflater
      * @param container
      * @param savedInstanceState
@@ -117,14 +121,14 @@ public class    CrimeDetailFragment extends Fragment {
     public void onPause() {
         super.onPause();
         updateCrime();
-        int index=0;
-        for (int i = 0; i <mCrimeList.size() ; i++) {
+        int index = 0;
+        for (int i = 0; i < mCrimeList.size(); i++) {
             if (mCrimeList.get(i).getId().equals(mIdCrime))
-                index =i;
+                index = i;
 
         }
 
-        Intent intent = CrimeListActivity.newIntent(getActivity(),index,mIdCrime);
+        Intent intent = CrimeListActivity.newIntent(getActivity(), index, mIdCrime);
         startActivity(intent);
 
         Log.d(TAG, "onPause");
@@ -153,6 +157,8 @@ public class    CrimeDetailFragment extends Fragment {
         mImgBtnLast = view.findViewById(R.id.img_btn_last);
         mButtonSuspect = view.findViewById(R.id.choose_suspect);
         mButtonReport = view.findViewById(R.id.send_report);
+        mButtonCall = view.findViewById(R.id.call_suspect);
+        mButtonDial = view.findViewById(R.id.dial_suspect);
     }
 
     private void initViews() {
@@ -253,6 +259,20 @@ public class    CrimeDetailFragment extends Fragment {
             }
         });
 
+        mButtonDial.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        mButtonCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
 
     }
 
@@ -266,6 +286,7 @@ public class    CrimeDetailFragment extends Fragment {
 
         mButtonDate.setText(mCrime.getDate().toString());
     }
+
     private void updateData(int index) {
         mCrime = mCrimeList.get(index);
         mEditTextTitle.setText(mCrime.getTitle());

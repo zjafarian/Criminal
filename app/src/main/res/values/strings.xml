@@ -30,6 +30,11 @@
 
     <string name="crime_suspect_text">Choose Suspect</string>
     <string name="crime_report_text">Send Crime Report</string>
+    <string name="crime_call_suspect_text">Call %s</string>
+    <string name="crime_dial_suspect_text">Dial %s</string>
+    <string name="crime_call_no_suspect_text">Call</string>
+    <string name="crime_dial_no_suspect_text">Dial</string>
+
 
     <string name="crime_report">%1$s!
         The crime was discovered on %2$s. %3$s, and %4$s

@@ -320,7 +320,7 @@ public class CrimeDetailFragment extends Fragment {
     }
 
     private void shareReportIntent() {
-        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+       /* Intent sendIntent = new Intent(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_TEXT, getReport());
         sendIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
         sendIntent.setType("text/plain");
@@ -330,6 +330,15 @@ public class CrimeDetailFragment extends Fragment {
                 Intent.createChooser(sendIntent, getString(R.string.send_report));
         //we prevent app from crash if the intent has no destination.
         if (sendIntent.resolveActivity(getActivity().getPackageManager()) != null)
+            startActivity(shareIntent);*/
+
+        ShareCompat.IntentBuilder shareCompat = null;
+        shareCompat.setText(getReport());
+        Intent shareIntent =
+                Intent.createChooser(shareCompat.getIntent(), getString(R.string.send_report));
+
+        //we prevent app from crash if the intent has no destination.
+        if (shareCompat.getIntent().resolveActivity(getActivity().getPackageManager())!= null)
             startActivity(shareIntent);
 
 

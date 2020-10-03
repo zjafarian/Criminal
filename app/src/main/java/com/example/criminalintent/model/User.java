@@ -1,11 +1,22 @@
 package com.example.criminalintent.model;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import java.util.UUID;
 
+@Entity(tableName = "userTable")
 public class User {
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "idUser")
+    private long mPrimaryId;
+    @ColumnInfo(name = "uuidUser")
     private UUID mIdUser;
-    private String mName=" ";
-    private String mPassword=" ";
+    @ColumnInfo(name = "username")
+    private String mName = " ";
+    @ColumnInfo(name = "password")
+    private String mPassword = " ";
 
     public User() {
     }
@@ -14,6 +25,18 @@ public class User {
         mIdUser = id;
         mName = name;
         mPassword = password;
+    }
+
+    public long getPrimaryId() {
+        return mPrimaryId;
+    }
+
+    public void setPrimaryId(long primaryId) {
+        mPrimaryId = primaryId;
+    }
+
+    public void setIdUser(UUID idUser) {
+        mIdUser = idUser;
     }
 
     public UUID getIdUser() {

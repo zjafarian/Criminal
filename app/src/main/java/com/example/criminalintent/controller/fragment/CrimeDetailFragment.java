@@ -166,6 +166,9 @@ public class CrimeDetailFragment extends Fragment {
         mEditTextTitle.setText(mCrime.getTitle());
         mCheckBoxSolved.setChecked(mCrime.isSolved());
         mButtonDate.setText(mCrime.getDate().toString());
+        if (mCrime.getSuspect() != null)
+            mButtonSuspect.setText(mCrime.getSuspect());
+
     }
 
     private void setListeners() {

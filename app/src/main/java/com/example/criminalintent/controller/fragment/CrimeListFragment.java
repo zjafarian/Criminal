@@ -1,5 +1,6 @@
 package com.example.criminalintent.controller.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,6 +45,7 @@ public class CrimeListFragment extends Fragment {
     private boolean mIsSubtitleVisible = false;
     private UUID mUserId;
     private User mUser;
+    private Callbacks mCallbacks;
 
 
     public static CrimeListFragment newInstance(int index, UUID uuid) {
@@ -57,6 +59,17 @@ public class CrimeListFragment extends Fragment {
 
     public CrimeListFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof Callbacks)
+            mCallbacks = (Callbacks) context;
+        else {
+            throw new ClassCastException(context.toString()
+                    + " must implement Callbacks");
+        }
     }
 
     @Override
@@ -150,7 +163,7 @@ public class CrimeListFragment extends Fragment {
         updateUI(mIndex);
     }
 
-    private void updateUI(int index) {
+    public void updateUI(int index) {
         List<Crime> crimes = mRepository.getCrimes();
 
         if (mCrimeAdapter == null) {
@@ -248,6 +261,10 @@ public class CrimeListFragment extends Fragment {
             Crime crime = mCrimes.get(position);
             holder.bindCrime(crime);
         }
+    }
+
+    public interface Callbacks {
+        void onCrimeSelected(Crime crime);
     }
 
 }

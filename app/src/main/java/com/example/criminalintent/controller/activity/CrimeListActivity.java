@@ -5,13 +5,18 @@ import android.content.Intent;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.criminalintent.R;
+import com.example.criminalintent.controller.fragment.CrimeDetailFragment;
 import com.example.criminalintent.controller.fragment.CrimeListFragment;
+import com.example.criminalintent.model.Crime;
 
 import java.util.UUID;
 
-public class CrimeListActivity extends SingleFragmentActivity {
+public class CrimeListActivity extends SingleFragmentActivity implements
+        CrimeListFragment.Callbacks, CrimeDetailFragment.Callbacks {
     public static final String EXTRA_CURRENT_INDEX = "com.example.criminalintent.CurrentIndex";
     public static final String EXTRA_ID_USER = "com.example.criminalintent.idUser";
+    int index;
 
     public static Intent newIntent(Context context, int index, UUID uuid) {
         Intent intent = new Intent(context, CrimeListActivity.class);
@@ -22,38 +27,36 @@ public class CrimeListActivity extends SingleFragmentActivity {
 
     @Override
     public Fragment createFragment() {
-        int index = getIntent().getIntExtra(EXTRA_CURRENT_INDEX,0);
+        index = getIntent().getIntExtra(EXTRA_CURRENT_INDEX,0);
         UUID uuid = (UUID) getIntent().getSerializableExtra(EXTRA_ID_USER);
         CrimeListFragment crimeListFragment = CrimeListFragment.newInstance(index,uuid);
         return crimeListFragment;
     }
 
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_cime_list, menu);
 
-        return true;
+    @Override
+    public void onCrimeUpdated(Crime crime) {
+        CrimeListFragment crimeListFragment = (CrimeListFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_container);
+
+        crimeListFragment.updateUI(index);
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Log.d("CLA", "item: " + item.getItemId());
+    public void onCrimeSelected(Crime crime) {
+        if (findViewById(R.id.detail_fragment_container) == null) {
+            Intent intent = CrimePagerActivity.newIntent(this, crime.getId());
+            startActivity(intent);
+        } else {
+            //add fragment to container
+            CrimeDetailFragment crimeDetailFragment =
+                    CrimeDetailFragment.newInstance(crime.getId());
 
-        switch (item.getItemId()) {
-            case R.id.menu_item_add_crime:
-                Crime crime = new Crime();
-                CrimeRepository.getInstance().insertCrime(crime);
-
-                Intent intent = CrimePagerActivity.newIntent(this, crime.getId());
-                startActivity(intent);
-
-                return true;
-            case R.id.menu_item_clear:
-                //remove all items in repository
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.detail_fragment_container, crimeDetailFragment)
+                    .commit();
         }
-    }*/
+
+    }
 }

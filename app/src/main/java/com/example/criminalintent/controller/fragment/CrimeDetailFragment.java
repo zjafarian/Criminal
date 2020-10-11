@@ -1,6 +1,7 @@
 package com.example.criminalintent.controller.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -16,6 +17,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ShareCompat;
 import androidx.fragment.app.Fragment;
@@ -58,6 +60,8 @@ public class CrimeDetailFragment extends Fragment {
     private Button mButtonCall;
     private Button mButtonDial;
 
+    private Callbacks mCallbacks;
+
 
     public static CrimeDetailFragment newInstance(UUID crimeId) {
 
@@ -73,10 +77,22 @@ public class CrimeDetailFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof Callbacks)
+            mCallbacks = (Callbacks) context;
+        else {
+            throw new ClassCastException(context.toString()
+                    + " must implement Callbacks");
+        }
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Log.d(TAG, "onCreate");
+
         mCrimeList = new ArrayList<>();
         mRepository = CrimeDBRepository.getInstance(getActivity());
         mCrimeList = mRepository.getCrimes();
@@ -353,5 +369,9 @@ public class CrimeDetailFragment extends Fragment {
         if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
             startActivityForResult(intent, REQUEST_CODE_SELECT_CONTACT);
         }
+    }
+
+    public interface Callbacks {
+        void onCrimeUpdated(Crime crime);
     }
 }

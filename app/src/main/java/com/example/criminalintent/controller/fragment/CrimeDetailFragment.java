@@ -1,10 +1,17 @@
 package com.example.criminalintent.controller.fragment;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -16,10 +23,12 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import com.example.criminalintent.R;
@@ -27,7 +36,9 @@ import com.example.criminalintent.controller.activity.CrimeListActivity;
 import com.example.criminalintent.model.Crime;
 import com.example.criminalintent.repository.CrimeDBRepository;
 import com.example.criminalintent.repository.IRepository;
+import com.example.criminalintent.utils.PictureUtils;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,6 +52,7 @@ public class CrimeDetailFragment extends Fragment {
     public static final String FRAGMENT_TAG_DATE_PICKER = "DatePicker";
     public static final int REQUEST_CODE_DATE_PICKER = 0;
     private static final int REQUEST_CODE_SELECT_CONTACT = 1;
+    private static final int REQUEST_CODE_IMAGE_CAPTURE = 2;
 
     private ImageButton mImgBtnFirst;
     private ImageButton mImgBtnPrevious;
@@ -59,8 +71,12 @@ public class CrimeDetailFragment extends Fragment {
     private Button mButtonReport;
     private Button mButtonCall;
     private Button mButtonDial;
+    private ImageView mImageViewPhoto;
+    private ImageButton mImageButtonTakePicture;
 
     private Callbacks mCallbacks;
+    private File mPhotoFile;
+    public static final String AUTHORITY = "com.example.criminalintent.fileProvider";
 
 
     public static CrimeDetailFragment newInstance(UUID crimeId) {
@@ -152,15 +168,58 @@ public class CrimeDetailFragment extends Fragment {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (resultCode != Activity.RESULT_OK || data == null)
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
+        if (resultCode != Activity.RESULT_OK || intent == null)
             return;
 
         if (requestCode == REQUEST_CODE_DATE_PICKER) {
             Date userSelectedDate =
-                    (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_USER_SELECTED_DATE);
+                    (Date) intent.getSerializableExtra(DatePickerFragment.EXTRA_USER_SELECTED_DATE);
 
             updateCrimeDate(userSelectedDate);
+        }else if (requestCode == REQUEST_CODE_SELECT_CONTACT) {
+            handleSelectedContact(intent);
+        } else if (requestCode == REQUEST_CODE_IMAGE_CAPTURE) {
+            Uri photoUri = generateUriForPhotoFile();
+            getActivity().revokeUriPermission(photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+            updatePhotoView();
+        }
+
+
+    }
+
+    private void updatePhotoView() {
+        if (mPhotoFile == null || !mPhotoFile.exists())
+            return;
+
+        //this has a better memory management.
+        Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getAbsolutePath(), getActivity());
+        mImageViewPhoto.setImageBitmap(bitmap);
+    }
+
+    private void handleSelectedContact(Intent intent) {
+        Uri contactUri = intent.getData();
+
+        String[] projection = new String[]{ContactsContract.Contacts.DISPLAY_NAME};
+        Cursor cursor = getActivity().getContentResolver().query(
+                contactUri,
+                projection,
+                null,
+                null,
+                null);
+
+        if (cursor == null || cursor.getCount() == 0)
+            return;
+
+        try {
+            cursor.moveToFirst();
+
+            String suspect = cursor.getString(0);
+            mCrime.setSuspect(suspect);
+            mButtonSuspect.setText(suspect);
+        } finally {
+            cursor.close();
         }
     }
 
@@ -176,6 +235,8 @@ public class CrimeDetailFragment extends Fragment {
         mButtonReport = view.findViewById(R.id.send_report);
         mButtonCall = view.findViewById(R.id.call_suspect);
         mButtonDial = view.findViewById(R.id.dial_suspect);
+        mImageViewPhoto = view.findViewById(R.id.imgview_photo);
+        mImageButtonTakePicture = view.findViewById(R.id.imgbtn_take_picture);
     }
 
     private void initViews() {
@@ -199,6 +260,7 @@ public class CrimeDetailFragment extends Fragment {
                 Log.d(TAG, "onTextChanged: " + s + ", " + start + ", " + before + ", " + count);
                 mCrime.setTitle(s.toString());
                 mIdCrime = mCrime.getId();
+                updateCrime();
             }
 
             @Override
@@ -212,6 +274,7 @@ public class CrimeDetailFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mCrime.setSolved(isChecked);
                 mIdCrime = mCrime.getId();
+                updateCrime();
             }
         });
 
@@ -293,6 +356,13 @@ public class CrimeDetailFragment extends Fragment {
             }
         });
 
+        mImageButtonTakePicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                takePictureIntent();
+            }
+        });
+
 
     }
 
@@ -357,7 +427,7 @@ public class CrimeDetailFragment extends Fragment {
                 Intent.createChooser(shareCompat.getIntent(), getString(R.string.send_report));
 
         //we prevent app from crash if the intent has no destination.
-        if (shareCompat.getIntent().resolveActivity(getActivity().getPackageManager())!= null)
+        if (shareCompat.getIntent().resolveActivity(getActivity().getPackageManager()) != null)
             startActivity(shareIntent);
 
 
@@ -373,5 +443,47 @@ public class CrimeDetailFragment extends Fragment {
 
     public interface Callbacks {
         void onCrimeUpdated(Crime crime);
+    }
+
+    private void takePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        try {
+            if (mPhotoFile != null && takePictureIntent
+                    .resolveActivity(getActivity().getPackageManager()) != null) {
+
+                // file:///data/data/com.example.ci/files/234234234234.jpg
+                Uri photoUri = generateUriForPhotoFile();
+
+                grantWriteUriToAllResolvedActivities(takePictureIntent, photoUri);
+
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                startActivityForResult(takePictureIntent, REQUEST_CODE_IMAGE_CAPTURE);
+            }
+        } catch (ActivityNotFoundException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+
+
+    }
+
+    private Uri generateUriForPhotoFile() {
+        return FileProvider.getUriForFile(
+                getContext(),
+                AUTHORITY,
+                mPhotoFile);
+    }
+
+    private void grantWriteUriToAllResolvedActivities(Intent takePictureIntent, Uri photoUri) {
+        List<ResolveInfo> activities = getActivity().getPackageManager()
+                .queryIntentActivities(
+                        takePictureIntent,
+                        PackageManager.MATCH_DEFAULT_ONLY);
+
+        for (ResolveInfo activity : activities) {
+            getActivity().grantUriPermission(
+                    activity.activityInfo.packageName,
+                    photoUri,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        }
     }
 }

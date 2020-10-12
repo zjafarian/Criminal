@@ -45,6 +45,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static android.content.Intent.EXTRA_SUBJECT;
+
 public class CrimeDetailFragment extends Fragment {
 
     public static final String TAG = "CDF";
@@ -419,16 +421,19 @@ public class CrimeDetailFragment extends Fragment {
                 Intent.createChooser(sendIntent, getString(R.string.send_report));
         //we prevent app from crash if the intent has no destination.
         if (sendIntent.resolveActivity(getActivity().getPackageManager()) != null)
-            startActivity(shareIntent);*/
+            startActivity(shareIntent);
+*/
+        ShareCompat.IntentBuilder shareCompat = ShareCompat.IntentBuilder.from(getActivity());
+        Intent chooserIntent = shareCompat
+                .setType("text/plain")
+                .setText(getReport())
+                .setSubject(getString(R.string.crime_report_subject))
+                .createChooserIntent();
 
-        ShareCompat.IntentBuilder shareCompat = null;
-        shareCompat.setText(getReport());
-        Intent shareIntent =
-                Intent.createChooser(shareCompat.getIntent(), getString(R.string.send_report));
 
         //we prevent app from crash if the intent has no destination.
-        if (shareCompat.getIntent().resolveActivity(getActivity().getPackageManager()) != null)
-            startActivity(shareIntent);
+        if (chooserIntent.resolveActivity(getActivity().getPackageManager()) != null)
+            startActivity(chooserIntent);
 
 
     }

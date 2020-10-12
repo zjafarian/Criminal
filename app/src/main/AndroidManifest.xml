@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".controller.activity.SignUpActivity"></activity>
-        <activity android:name=".controller.activity.LoginActivity" >
+        <activity android:name=".controller.activity.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -18,13 +18,20 @@
             </intent-filter>
 
         </activity>
-        <activity
-            android:name=".controller.activity.CrimePagerActivity"
-            android:parentActivityName=".controller.activity.CrimeListActivity" />
-        <activity android:name=".controller.activity.CrimeListActivity">
 
+        <activity android:name=".controller.activity.CrimePagerActivity"
+            android:parentActivityName=".controller.activity.CrimeListActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
 
         </activity>
+
+
+        <activity android:name=".controller.activity.CrimeListActivity"></activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.criminalintent.fileProvider"
@@ -32,7 +39,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/files_path"/>
+                android:resource="@xml/files_path" />
         </provider>
     </application>
 
